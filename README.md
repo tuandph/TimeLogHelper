@@ -3,6 +3,8 @@
 ## Usage
 
 ```C
+using LogFileHelper;
+
 static void Main(string[] args)
 {
     // Start log
