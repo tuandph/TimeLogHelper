@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -22,6 +22,8 @@ namespace LogFileHelper
         public static void SaveCsvFileFromMemories(string filePath = FILE_PATH,string name = "Log")
         {
             File.WriteAllLines(@$"{filePath}-{name}-{Guid.NewGuid()}.csv", memories);
+            stopwatches.Clear();
+            memories.Clear();
         }
 
         public static Stopwatch StartMeasure(string name, int nestedLevel = 1)
@@ -47,7 +49,11 @@ namespace LogFileHelper
         public static void AddToMemories(StopWatchInfo info, double time)
         {
             var startNested = "";
-            List<string> remainingTimeFormat = new List<string> { "," , ",", ",", ",", ",", ",", ","};
+            List<string> remainingTimeFormat = new List<string>();
+            for (int i = 0; i <= info.NestedLevel; i++)
+            {
+                remainingTimeFormat.Add(",");
+            }
             for (int i = 2; i <= info.NestedLevel; i++)
             {
                 startNested = startNested + ",";
@@ -56,5 +62,4 @@ namespace LogFileHelper
             memories.Add(startNested + info.FunctionName + string.Join("", remainingTimeFormat) + time);
         }
     }
-
 }
