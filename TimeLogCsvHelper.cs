@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -7,21 +7,29 @@ using System.Threading;
 
 namespace LogFileHelper
 {
+
+    
     public class StopWatchInfo
     {
+        public StopWatchInfo(int index) {
+            this.Index = index;
+        }
+        public int Index { get; set; }
         public string FunctionName { get; set; }
         public int NestedLevel { get; set; }
     }
 
     public static class TimeLogCsvHelper
     {
-        private static List<string> memories = new List<string>();
+        public static int Index = 1;
+        private static Dictionary<int, string> memories = new Dictionary<int, string>();
         private static Dictionary<StopWatchInfo, Stopwatch> stopwatches = new Dictionary<StopWatchInfo, Stopwatch>();
         private const string FILE_PATH = @"D:\ExcelLog\Logdata";
 
         public static void SaveCsvFileFromMemories(string filePath = FILE_PATH,string name = "Log")
         {
-            File.WriteAllLines(@$"{filePath}-{name}-{Guid.NewGuid()}.csv", memories);
+            var writeDatas = memories.OrderBy(p => p.Key).Select(p => $"{p.Key},{p.Value}").ToList();
+            File.WriteAllLines(@$"{filePath}-{name}-{Guid.NewGuid()}.csv", writeDatas);
             stopwatches.Clear();
             memories.Clear();
         }
@@ -30,7 +38,7 @@ namespace LogFileHelper
         {
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            stopwatches.Add(new StopWatchInfo { FunctionName = name, NestedLevel = nestedLevel }, stopwatch);
+            stopwatches.Add(new StopWatchInfo(Index++) { FunctionName = name, NestedLevel = nestedLevel }, stopwatch);
             return stopwatch;
         }
 
@@ -59,7 +67,8 @@ namespace LogFileHelper
                 startNested = startNested + ",";
                 remainingTimeFormat.Remove(remainingTimeFormat.FirstOrDefault());
             }
-            memories.Add(startNested + info.FunctionName + string.Join("", remainingTimeFormat) + time);
+            memories.Add(info.Index, startNested + info.FunctionName + string.Join("", remainingTimeFormat) + time);
         }
     }
+
 }
